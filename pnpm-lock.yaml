@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@slidev/cli':
-    specifier: ^0.46.1
+    specifier: 0.46.1
     version: 0.46.1(@types/markdown-it@13.0.7)(postcss@8.4.33)(typescript@5.3.3)
   '@slidev/theme-default':
     specifier: latest
