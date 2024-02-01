@@ -126,7 +126,7 @@ export function Counter() {
 
 ---
 
-# Server Components
+# Server Components(RSC)
 
 サーバーでのみ実行されるComponent
 
@@ -192,19 +192,111 @@ export default function Page() {
 layout: section
 ---
 
-# App Router10分チュートリアル
+# Short Tutorial
 
 ---
 
-# Hello, world.
+# Hello world.
 
-TBW
+https://github.com/vercel/next.js/tree/canary/examples/hello-world
 
-1. create next app
-2. fetch+console
-3. dynamic functions
-4. server actions
-5. revalidate
+```shell
+$ pnpm create next-app --use-pnpm --example hello-world hello-world-app
+```
+
+---
+
+# Nested layout
+
+`layout.tsx`を修正して`lang="ja"`を設定
+
+```tsx
+// app/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+   <html lang="ja">
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+---
+
+# Server Components + fetch
+
+dummyデータをfetchして表示
+
+```tsx
+// app/page.tsx
+export default async function Page() {
+  const res = await fetch('https://dummyjson.com/products/1')
+    .then((res) => res.json())
+    .finally(() => console.log('>>> fetch dummyjson'));
+
+  return (
+    <>
+      <h1>Hello, Next.js!</h1>
+      <pre>
+        <code>{JSON.stringify(res, null, 2)}</code>
+      </pre>
+    </>
+  );
+}
+```
+
+---
+
+# Client Components + `useState`
+
+`useState`を使うために`"use client"`を追加
+
+```tsx {all|2-4,7|18,31}{maxHeight:'320px'}
+// components/Counter.tsx
+"use client";
+
+import { useState } from "react";
+
+export function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>increment</button>
+    </div>
+  );
+}
+
+// app/page.tsx
+import { Counter } from "../components/counter";
+
+export default async function Page() {
+  const res = await fetch('https://dummyjson.com/products/1')
+    .then((res) => res.json())
+    .finally(() => console.log('>>> fetch dummyjson'));
+
+  return (
+    <>
+      <h1>Hello, Next.js!</h1>
+      <pre>
+        <code>{JSON.stringify(res, null, 2)}</code>
+      </pre>
+      <Counter />
+    </>
+  );
+}
+```
+
+---
+
+# Server Actions
+
+todo: サンプル実装の作成
 
 ---
 layout: section
