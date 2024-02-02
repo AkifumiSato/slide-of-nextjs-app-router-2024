@@ -18,18 +18,19 @@ Next.js App Router@2024.01
 
 ---
 
-# Intro
+# Agenda
 
 今日話すこと・話さないこと
 
-- アジェンダ
-  - 2023年のNext.js動向
+- 話すこと
+  - 2023年のNext.js動向振り返り
   - App Router is 何？
-  - App Router10分チュートリアル
+  - App Router Short Tutorial
   - App Routerにすべきか
 - 話さないこと
   - Next.jsやReactの基礎
   - experimentalな機能群
+  - App Routerを実案件で使う際の注意点
 
 ---
 layout: section
@@ -52,12 +53,12 @@ layout: section
 
 # Pages Routerはもう使わないべき？
 
-結論: そんなことはない
+結論: そんなことはない。まだまだ現役
 
 - 機能開発は停滞気味だが一応サポート宣言はされてる
 - Pages Routerはいわゆる「枯れてる」状態
   - 利用できる膨大なエコシステムで、メリットは大きい
-  - App Routerやめた話もちらほら...
+  - 実際App Router採用後乗り換えた話などもちらほら...
 - ただし、将来的にApp Routerへの移行が必須になる可能性もある
   - https://nextjs.org/blog/next-13-4#is-the-pages-router-going-away
   - 現時点ではどうなるか予想できない
@@ -89,8 +90,8 @@ App RouterはNext.jsにおける新たなルーティングと新機能
 
 Next.jsではなくReactにおける新たな概念
 
-- Client Component: 従来からあるクライアント・サーバーどちらでもレンダリング可能なComponent
-- Server Component: 新たに**サーバー側でのみレンダリングされる**Component
+- Client Component: 従来からあるクライアント・サーバー**どちらでもレンダリング可能**なComponent
+- Server Component: 新たに**サーバー側でのみレンダリングされる**Component。略してRSCとも呼ばれる
 - 概念自体はNext.js固有のものではないので、今後サポートするフレームワークは増えていくと予想
   - Remix
   - viteベースのVike
@@ -103,7 +104,7 @@ Next.jsではなくReactにおける新たな概念
 
 - ファイルの先頭に`"use client"`があるとそのComponent以下は全てClient Componentとなる
 - Next.jsにおいては**SSR時にもレンダリングされる**
-- props以外で**Server Componentsを含むことはできない**
+- propsを除き、Server Componentsを含むことはできない
 
 ```tsx {all|1|3,7}
 "use client"
@@ -126,7 +127,7 @@ export function Counter() {
 
 ---
 
-# Server Components(RSC)
+# Server Components
 
 サーバーでのみ実行されるComponent
 
@@ -210,7 +211,7 @@ $ pnpm create next-app --use-pnpm --example hello-world hello-world-app
 
 `layout.tsx`を修正して`lang="ja"`を設定
 
-```tsx
+```tsx {all|8}
 // app/layout.tsx
 export default function RootLayout({
   children,
@@ -231,10 +232,10 @@ export default function RootLayout({
 
 dummyデータをfetchして表示
 
-```tsx
+```tsx {all|3-5}
 // app/page.tsx
 export default async function Page() {
-  const res = await fetch('https://dummyjson.com/products/1')
+  const product = await fetch('https://dummyjson.com/products/1')
     .then((res) => res.json())
     .finally(() => console.log('>>> fetch dummyjson'));
 
@@ -242,7 +243,7 @@ export default async function Page() {
     <>
       <h1>Hello, Next.js!</h1>
       <pre>
-        <code>{JSON.stringify(res, null, 2)}</code>
+        <code>{JSON.stringify(product, null, 2)}</code>
       </pre>
     </>
   );
@@ -250,12 +251,14 @@ export default async function Page() {
 ```
 
 ---
+transition: fade
+---
 
 # Client Components + `useState`
 
 `useState`を使うために`"use client"`を追加
 
-```tsx {all|2-4,7|18,31}{maxHeight:'320px'}
+```tsx {all|2-4,7}
 // components/Counter.tsx
 "use client";
 
@@ -271,7 +274,15 @@ export function Counter() {
     </div>
   );
 }
+```
 
+---
+
+# Client Components + `useState`
+
+`useState`を使うために`"use client"`を追加
+
+```tsx {all|2,15}
 // app/page.tsx
 import { Counter } from "../components/counter";
 
@@ -293,10 +304,53 @@ export default async function Page() {
 ```
 
 ---
+transition: fade
+---
 
 # Server Actions
 
-todo: サンプル実装の作成
+formからサーバー側の関数を実行
+
+```ts
+// app/action.ts
+"use server";
+
+export async function action(data: FormData) {
+  // skip validation
+  const name = data.get("name");
+  console.log(`action called with name: "${name}"`);
+  // ...APIへPOSTしたりDBに保存するなど... 
+}
+```
+---
+
+# Server Actions
+
+formからサーバー側の関数を実行
+
+```tsx {all|3,15}
+// app/page.tsx
+import { Counter } from "../components/counter";
+import { action } from "./action";
+
+export default async function Page() {
+  // ...
+
+  return (
+    <>
+      <h1>Hello, Next.js!</h1>
+      <pre>
+        <code>{JSON.stringify(res, null, 2)}</code>
+      </pre>
+      <Counter />
+      <form action={action}>
+        name: <input type="text" name="name"/>
+        <button>submit</button>
+      </form>
+    </>
+  );
+}
+```
 
 ---
 layout: section
@@ -308,36 +362,38 @@ layout: section
 
 # App Routerの現状
 
-ポイントとしては以下3つ。
+App Routerはエコシステム含め未成熟な段階
 
-- App Routerはstable
-- Pages Routerから大きなパラダイムシフトが必要
-- Vercel以外で利用するには深い理解が必要となる
-
----
-
-# App Routerはstable
-
-- 破壊的変更を極力行わないという意味でのstable
-- **stable=プロダクションReadyではない**
-- バグ多かったが、最近は少しずつ安定に向かってる（？）
+- Next.jsとしてはApp Routerはstableと宣言してるが、実際には未成熟な状態
+  - まだまだApp Routerにはバグが多い傾向
+  - 関連ライブラリが未成熟
+- 学習コスト・対応コスト高
+  - Pages Routerから大きなパラダイムシフトが必要
+  - Vercel以外で利用するには深い理解が必要となる
+- 実験的採用なら良いが採用は慎重に
 
 ---
 
-# Pages Routerから大きなパラダイムシフトが必要
+# App Router採用時の注意点
 
-- シンプルになる部分もあれば複雑になる部分もある
-- これまでの知識を流用できる部分もあれば学習が必要な部分もある
+実験的でも良いから採用してみたい、という場合の注意点
 
----
-
-# Vercel以外で利用するには深い理解が必要となる
-
-- 特にCache周り
-- Cacheの多くをOpt outしちゃうのも手
+- Vercel以外での利用は難易度が高い
+  - Cacheのハンドリングなどを自前で行う必要あり
+- VercelでもCache周りでのはまりポイントが多い
+- `next dev`と`next build && next start`で挙動が異なるケースがある
+- static export周りでもバグが多い（らしい）
 
 ---
 layout: quote
+---
+
+# App RouterはNext.jsの将来を担う存在
+
+今日時点での採用は慎重に
+
+---
+layout: center
 ---
 
 # End
