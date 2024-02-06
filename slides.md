@@ -18,6 +18,20 @@ Next.js App Router@2024.01
 
 ---
 
+# Profile
+
+- name: 佐藤 昭文（Akifumi Sato）
+  - twitter: akfm_sato
+  - github: AkifumiSato
+  - zenn.dev: akfm
+  - Web Engineer
+- Next.js
+  - 仕事でもNext.js（Pages Router）のプロジェクトを担当
+  - 自身のサイトなどもNext.js（App Router）
+  - App Routerに強い興味あり
+
+---
+
 # Agenda
 
 今日話すこと・話さないこと

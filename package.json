@@ -5,7 +5,7 @@
   "scripts": {
     "build": "slidev build",
     "dev": "slidev --open --port 3031",
-    "export": "slidev export"
+    "export": "slidev export --per-slide --format pdf"
   },
   "dependencies": {
     "@slidev/cli": "0.46.1",
@@ -13,5 +13,8 @@
     "@slidev/theme-seriph": "0.21.3",
     "slidev-theme-academic": "1.1.4",
     "slidev-theme-eloc": "1.0.2"
+  },
+  "devDependencies": {
+    "playwright-chromium": "1.41.2"
   }
 }
