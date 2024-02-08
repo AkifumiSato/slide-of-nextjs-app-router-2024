@@ -146,6 +146,7 @@ export function Counter() {
 サーバーでのみ実行されるComponent
 
 - App RouterではデフォルトでServer Componentsとなる
+- `useState`などのhooksは**利用できない**
 - Component自体をasyncにすることが可能で、fetchを直接扱える
 - Client Components/Server Componentsどちらも含めることができる
 
@@ -241,12 +242,48 @@ export default function RootLayout({
 ```
 
 ---
+transition: fade
+---
+
+# New page
+
+ディレクトリを作成して新しいページを作成
+
+```tsx
+// app/products/page.tsx
+export default function Page() {
+  return <h1>Hello, Products page!</h1>;
+}
+```
+
+---
+
+# New page
+
+ディレクトリを作成して新しいページを作成
+
+```tsx {all|2,8}
+// app/page.tsx
+import Link from "next/link";
+
+export default function Page() {
+  return (
+    <>
+      <h1>Hello, Next.js!</h1>
+      <Link href="/products">/products</Link>
+    </>
+  );
+}
+
+```
+
+---
 
 # Server Components + fetch
 
 dummyデータをfetchして表示
 
-```tsx {all|3-5}
+```tsx {all|2|3-5}
 // app/page.tsx
 export default async function Page() {
   const product = await fetch('https://dummyjson.com/products/1')
@@ -256,6 +293,7 @@ export default async function Page() {
   return (
     <>
       <h1>Hello, Next.js!</h1>
+      <Link href="/products">/products</Link>
       <pre>
         <code>{JSON.stringify(product, null, 2)}</code>
       </pre>
@@ -273,7 +311,7 @@ transition: fade
 `useState`を使うために`"use client"`を追加
 
 ```tsx {all|2-4,7}
-// components/Counter.tsx
+// components/counter.tsx
 "use client";
 
 import { useState } from "react";
@@ -296,9 +334,10 @@ export function Counter() {
 
 `useState`を使うために`"use client"`を追加
 
-```tsx {all|2,15}
+```tsx {all|2,17}
 // app/page.tsx
 import { Counter } from "../components/counter";
+import Link from "next/link";
 
 export default async function Page() {
   const res = await fetch('https://dummyjson.com/products/1')
@@ -308,6 +347,7 @@ export default async function Page() {
   return (
     <>
       <h1>Hello, Next.js!</h1>
+      <Link href="/products">/products</Link>
       <pre>
         <code>{JSON.stringify(res, null, 2)}</code>
       </pre>
@@ -342,10 +382,11 @@ export async function action(data: FormData) {
 
 formからサーバー側の関数を実行
 
-```tsx {all|3,15}
+```tsx {all|3,17}
 // app/page.tsx
 import { Counter } from "../components/counter";
 import { action } from "./action";
+import Link from "next/link";
 
 export default async function Page() {
   // ...
@@ -353,6 +394,7 @@ export default async function Page() {
   return (
     <>
       <h1>Hello, Next.js!</h1>
+      <Link href="/products">/products</Link>
       <pre>
         <code>{JSON.stringify(res, null, 2)}</code>
       </pre>
