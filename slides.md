@@ -205,6 +205,21 @@ export default function Page() {
 </div>
 
 ---
+
+# なぜReactはServerを使い始めたのか
+
+Reactがクライアント中心であるが故に起こしていた様々な問題を解決したかった
+
+- デフォルトでより良いパフォーマンスの達成
+  - 対話的でないコンポーネントのハイドレーション処理・バンドルサイズの低減
+  - 抽象化によるバンドルサイズ増加の回避
+  - クライアント・サーバーをまたぐ、データフェッチのウォーターフォール回避
+- バックエンドへのフルアクセス
+  - 従来はUIのためのエンドポイントか、抽象化されたエンドポイントが必要だった
+
+[//]: # (参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation)
+
+---
 layout: section
 ---
 
@@ -224,9 +239,9 @@ $ pnpm create next-app --use-pnpm --example hello-world hello-world-app
 
 # Nested layout
 
-`layout.tsx`を修正して`lang="ja"`を設定
+`layout.tsx`を修正して共通のヘッダーを作成
 
-```tsx {all|8}
+```tsx {all|10}
 // app/layout.tsx
 export default function RootLayout({
   children,
@@ -234,11 +249,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-   <html lang="ja">
-      <body>{children}</body>
+    <html lang="ja">
+      <body>
+        <header>all page's header</header>
+        {children}
+      </body>
     </html>
   );
 }
+
 ```
 
 ---
@@ -406,6 +425,67 @@ export default async function Page() {
     </>
   );
 }
+```
+
+---
+transition: fade
+---
+
+# Dynamic route
+
+従来同様、`[id]`のようなページも作成可能
+
+```tsx
+// app/products/[id]/page.tsx
+export default function Page({ params }: {
+  params: { id: string }
+}) {
+  return <h1>Hello, Products {params.id} page!</h1>;
+}
+```
+
+---
+
+# Dynamic route
+
+従来同様、`[id]`のようなページも作成可能
+
+```tsx
+// app/products/page.tsx
+import Link from "next/link";
+
+export default function Page() {
+  return (
+    <>
+      <h1>Hello, Products page!</h1>
+      <Link href="/products/111">/products/111</Link>
+    </>
+  );
+}
+```
+
+---
+
+# revalidate
+
+defaultで強力にキャッシュされる
+
+```tsx {all|14,15}
+// app/products/page.tsx
+import Link from "next/link";
+
+export default function Page() {
+  return (
+    <>
+      <h1>Hello, Products page!</h1>
+      <Link href="/products/111">/products/111</Link>
+      <p>random: {Math.random()}</p>
+    </>
+  );
+}
+
+// next build && next startでのみキャッシュが3.0s有効
+export const revalidate = 3000;
 ```
 
 ---
