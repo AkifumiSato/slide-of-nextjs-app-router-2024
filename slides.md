@@ -485,7 +485,7 @@ export default function Page() {
 }
 
 // next build && next startでのみキャッシュが3.0s有効
-export const revalidate = 3000;
+export const revalidate = 3;
 ```
 
 ---
