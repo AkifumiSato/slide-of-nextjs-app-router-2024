@@ -516,9 +516,11 @@ App Routerはエコシステム含め未成熟な段階
 
 - Vercel以外での利用は難易度が高い
   - Cacheのハンドリングなどを自前で行う必要あり
-- VercelでもCache周りでのはまりポイントが多い
-- `next dev`と`next build && next start`で挙動が異なるケースがある
-- static export周りでもバグが多い（らしい）
+- フレームワーク自体のはまりポイントが多い
+  - Cache周り
+  - `next dev`と`next build && next start`で挙動が異なるケースがある
+  - static export周りでもバグが多い（らしい）
+- storybookやテスト周りなどが未成熟
 
 ---
 layout: quote
