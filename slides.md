@@ -93,10 +93,26 @@ App RouterはNext.jsにおける新たなルーティングと新機能
   - `pages`ではなく`app`ディレクトリ配下に配置する
   - **フレームワークとしてはほとんど別物レベル**
 - Reactの新機能が使える
-  - Client Components/Server Components
-  - Server Action
+  - Client Components/**Server Components**
+  - Server Actions
 - 強力なCache
 - その他諸々新機能（多くて混乱するので割愛）
+
+---
+
+# 新機能にみるReact×Serverの進化
+
+Reactがクライアント中心であるが故に起きていた、様々な問題を解決したかった
+
+- デフォルトでより良いパフォーマンスの達成
+  - ハイドレーション処理・バンドルサイズを減らせる
+  - クライアント<->サーバーの通信を減らせる
+    - （サーバー<->サーバー間の通信の方が早いことが多い＋よりセキュア）
+- バックエンドへのフルアクセス
+  - より簡単に、Componentが必要なデータを取得できるようになった
+  - 中間層(tRPC, GraphQL, API Routesなど)の実装や設計が不要に
+
+[//]: # (参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation)
 
 ---
 
@@ -203,21 +219,6 @@ export default function Page() {
 <div class="flex justify-center">
   <img src="/assets/next-cache.png" class="w-100">
 </div>
-
----
-
-# なぜReactはServerを使い始めたのか
-
-Reactがクライアント中心であるが故に起こしていた様々な問題を解決したかった
-
-- デフォルトでより良いパフォーマンスの達成
-  - 対話的でないコンポーネントのハイドレーション処理・バンドルサイズの低減
-  - 抽象化によるバンドルサイズ増加の回避
-  - クライアント・サーバーをまたぐ、データフェッチのウォーターフォール回避
-- バックエンドへのフルアクセス
-  - 従来はUIのためのエンドポイントか、抽象化されたエンドポイントが必要だった
-
-[//]: # (参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation)
 
 ---
 layout: section
