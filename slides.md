@@ -110,7 +110,7 @@ Reactがクライアント中心であるが故に起きていた、様々な問
     - （サーバー<->サーバー間の通信の方が早いことが多い＋よりセキュア）
 - バックエンドへのフルアクセス
   - より簡単に、Componentが必要なデータを取得できるようになった
-  - 中間層(tRPC, GraphQL, API Routesなど)の実装や設計が不要に
+  - 中間層(tRPC, GraphQL, API Routesなど)の実装や設計が不要に（詳細は後述）
 
 [//]: # (参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation)
 
@@ -124,8 +124,10 @@ Next.jsではなくReactにおける新たな概念
 - Server Component: 新たに**サーバー側でのみレンダリングされる**Component。略してRSCとも呼ばれる
 - 概念自体はNext.js固有のものではないので、今後サポートするフレームワークは増えていくと予想
   - Remix
-  - viteベースのVike
+  - Vike(Viteベース)
 
+---
+transition: fade
 ---
 
 # Client Components
@@ -134,7 +136,6 @@ Next.jsではなくReactにおける新たな概念
 
 - ファイルの先頭に`"use client"`があるとそのComponent以下は全てClient Componentとなる
 - Next.jsにおいては**SSR時にもレンダリングされる**
-- propsを除き、Server Componentsを含むことはできない
 
 ```tsx {all|1|3,7}
 "use client"
@@ -157,19 +158,49 @@ export function Counter() {
 
 ---
 
+# Client Components
+
+従来からあるComponent
+
+- `children`(などのprops)を除き、Server Componentsを含むことはできない
+
+todo: サンプル実装修正
+
+```tsx {all|4}
+"use client"
+
+import { useState } from "react";
+import { Child } from "@/components/Child"; // Server Componentだとerror
+
+export function Counter() {
+  const [count, setCount] = useState(0) // Client Componentのみで利用可能
+
+  return (
+    <div>
+      <p>count: >{count}</p>
+      <button onClick={() => setCount(prev => prev + 1)}>increment</button>
+      <Child />
+    </div>
+  )
+}
+```
+
+---
+
 # Server Components
 
 サーバーでのみ実行されるComponent
 
 - App RouterではデフォルトでServer Componentsとなる
-- `useState`などのhooksは**利用できない**
+- `useState`などの一部hooksは**利用できない**
 - Component自体をasyncにすることが可能で、fetchを直接扱える
 - Client Components/Server Componentsどちらも含めることができる
 
-```tsx {all|4|1,11}
+```tsx {all|4,5|1,12}
 import { Counter } from "@/components/Counter"; // Client Component
 
 export default async function Page() {
+  // 今までできなかったが、直接awaitできる
   const product = await fetch('https://dummyjson.com/products/1').then(res => res.json())
 
   return (
@@ -185,22 +216,37 @@ export default async function Page() {
 
 ---
 
+# RSCとSSRとの違い
+
+従来からあるSSR(Server Side Rendering)と混乱しやすいが、Server Componentsは全く異なる概念
+
+- SSR: Client Componentsをサーバーサイドでレンダリングすること
+- Client Components: クライアントサイドでレンダリング＋サーバーサイドでもレンダリングが可能
+  - ハイドレーションすることが前提
+  - クライアントサイドでも実行されるが故、API keyやDB操作を扱うことができない
+- Server Components: サーバーサイドでのみレンダリングされるComponent
+  - ハイドレーションされない
+  - クライアントサイドで実行されないので、API keyやDB操作を扱うことができる
+
+---
+
 # Server Action
 
 formの`action`からサーバー側の関数を実行できる
 
 - `"use server"`と書くことでサーバーサイドで実行される関数となる
 
-```tsx {all|3-9|11}
-// Server Component
-export default function Page() {
-  async function create(formData: FormData) {
-    "use server"
+```tsx {all|4-7|12}
+// action.ts
+"use server"
 
-    const text = formData.get('text')
-    // ...APIへPOSTしたりDBに保存するなど...
-  }
- 
+async function create(formData: FormData) {
+  const text = formData.get('text')
+  // ...APIへPOSTしたりDBに保存するなど...
+}
+
+// page.tsx
+export default function Page() {
   return (
     <form action={create}>
       <input type="text" />
@@ -233,7 +279,12 @@ layout: section
 https://github.com/vercel/next.js/tree/canary/examples/hello-world
 
 ```shell
+# pnpm
 $ pnpm create next-app --use-pnpm --example hello-world hello-world-app
+# npx
+$ npx create next-app --example hello-world hello-world-app
+# yarn
+$ yarn create next-app --use-yarn --example hello-world hello-world-app
 ```
 
 ---
@@ -304,6 +355,56 @@ export default function Page() {
 dummyデータをfetchして表示
 
 ```tsx {all|2|3-5}
+// app/page.tsx
+export default async function Page() {
+  const product = await fetch('https://dummyjson.com/products/1')
+    .then((res) => res.json())
+    .finally(() => console.log('>>> fetch dummyjson'));
+
+  return (
+    <>
+      <h1>Hello, Next.js!</h1>
+      <Link href="/products">/products</Link>
+      <pre>
+        <code>{JSON.stringify(product, null, 2)}</code>
+      </pre>
+    </>
+  );
+}
+```
+
+---
+
+# Error UI
+
+TBW
+
+```tsx
+// app/page.tsx
+export default async function Page() {
+  const product = await fetch('https://dummyjson.com/products/1')
+    .then((res) => res.json())
+    .finally(() => console.log('>>> fetch dummyjson'));
+
+  return (
+    <>
+      <h1>Hello, Next.js!</h1>
+      <Link href="/products">/products</Link>
+      <pre>
+        <code>{JSON.stringify(product, null, 2)}</code>
+      </pre>
+    </>
+  );
+}
+```
+
+---
+
+# Loading UI
+
+TBW
+
+```tsx
 // app/page.tsx
 export default async function Page() {
   const product = await fetch('https://dummyjson.com/products/1')
