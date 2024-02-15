@@ -164,22 +164,22 @@ export function Counter() {
 
 - `children`(などのprops)を除き、Server Componentsを含むことはできない
 
-todo: サンプル実装修正
-
-```tsx {all|4}
+```tsx {all|8,15}
 "use client"
 
 import { useState } from "react";
-import { Child } from "@/components/Child"; // Server Componentだとerror
 
-export function Counter() {
-  const [count, setCount] = useState(0) // Client Componentのみで利用可能
+export function Accordion({
+  children,
+}: {
+  children: React.ReactNode; // Server Componentsも可!
+}) {
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <div>
-      <p>count: >{count}</p>
-      <button onClick={() => setCount(prev => prev + 1)}>increment</button>
-      <Child />
+      <button>toggle</button>
+      <div>{children}</div>
     </div>
   )
 }
@@ -374,52 +374,85 @@ export default async function Page() {
 ```
 
 ---
+transition: fade
+---
 
 # Error UI
 
-TBW
+`page.tsx`でエラーが起きた時のUIは、`error.tsx`で定義可能
 
-```tsx
+```tsx {all|5-7}
 // app/page.tsx
 export default async function Page() {
   const product = await fetch('https://dummyjson.com/products/1')
-    .then((res) => res.json())
+    // .then((res) => res.json())
+    .then((res) => {
+      throw new Error('always error')
+    })
     .finally(() => console.log('>>> fetch dummyjson'));
 
-  return (
-    <>
-      <h1>Hello, Next.js!</h1>
-      <Link href="/products">/products</Link>
-      <pre>
-        <code>{JSON.stringify(product, null, 2)}</code>
-      </pre>
-    </>
-  );
+  // ...
 }
 ```
 
 ---
 
-# Loading UI
+# Error UI
 
-TBW
+`page.tsx`でエラーが起きた時のUIは、`error.tsx`で定義可能
 
 ```tsx
+// app/error.tsx
+"use client"
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <div>
+      <h2>Error!</h2>
+      <button onClick={() => reset()}>Try again</button>
+      <pre>{error.message}</pre>
+    </div>
+  )
+}
+```
+
+---
+transition: fade
+---
+
+# Loading UI
+
+長い非同期処理を含む場合には、`loading.tsx`でLoading UIを定義可能
+
+```tsx {all|5}
 // app/page.tsx
 export default async function Page() {
   const product = await fetch('https://dummyjson.com/products/1')
-    .then((res) => res.json())
+    .then(async (res) => {
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+      return res
+    })
     .finally(() => console.log('>>> fetch dummyjson'));
 
-  return (
-    <>
-      <h1>Hello, Next.js!</h1>
-      <Link href="/products">/products</Link>
-      <pre>
-        <code>{JSON.stringify(product, null, 2)}</code>
-      </pre>
-    </>
-  );
+  // ...
+}
+```
+---
+
+# Loading UI
+
+長い非同期処理を含む場合には、`loading.tsx`でLoading UIを定義可能
+
+```tsx {all}
+// app/loading.tsx
+export default function Loading() {
+  return <h1>Loading...</h1>;
 }
 ```
 
