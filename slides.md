@@ -3,7 +3,7 @@ theme: default
 # https://unsplash.com/ja/%E5%86%99%E7%9C%9F/%E7%B7%91%E8%B5%A4%E9%9D%92%E3%81%AE%E5%85%89--MzXKfizmQs
 background: /assets/top.jpg
 class: text-center
-highlighter: shikiji
+highlighter: shiki
 lineNumbers: false
 drawings:
   persist: false
@@ -43,7 +43,6 @@ Next.js App Router@2024.01
 - 話さないこと
   - Next.jsやReactの基礎
   - experimentalな機能群
-  - App Routerを実案件で使う際の注意点
 
 ---
 layout: section
@@ -327,6 +326,30 @@ export default function Page() {
 ```
 
 ---
+transition: fade
+---
+
+# New page
+
+ディレクトリを作成して新しいページを作成
+
+```tsx
+// app/products/layout.tsx
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      {children}
+      <footer>products page's footer</footer>
+    </>
+  );
+}
+```
+
+---
 
 # New page
 
@@ -435,7 +458,7 @@ export default async function Page() {
   const product = await fetch('https://dummyjson.com/products/1')
     .then(async (res) => {
       await new Promise((resolve) => setTimeout(resolve, 3000))
-      return res
+      return res.json()
     })
     .finally(() => console.log('>>> fetch dummyjson'));
 
