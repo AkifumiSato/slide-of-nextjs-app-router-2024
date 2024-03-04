@@ -71,25 +71,23 @@ layout: section
 - Pages Routerはいわゆる「枯れてる」状態
   - 利用できる膨大なエコシステムで、メリットは大きい
   - 実際App Router採用後乗り換えた話などもちらほら...
-- ただし、将来的にApp Routerへの移行が必須になる可能性もある
+- ただし、将来的にApp Routerへの移行が必須になる
   - https://nextjs.org/blog/next-13-4#is-the-pages-router-going-away
-  - 現時点ではどうなるか予想できない
 
 ---
 layout: section
 ---
 
-# App Router is ...
+# App Routerとは
 
 ---
 
-# App Router is ...
+# App Routerとは
 
-App RouterはNext.jsにおける新たなルーティングと新機能
+Next.jsの新しいアプリケーション構築の仕組み
 
-- Next.jsの新しいRouter
-  - `pages`ではなく`app`ディレクトリ配下に配置する
-  - **フレームワークとしてはほとんど別物レベル**
+- `pages`ではなく`app`ディレクトリ配下に配置する
+- **フレームワークとしてはほとんど別物レベル**
 - Reactの新機能が使える
   - Client Components/**Server Components**
   - Server Actions
@@ -98,9 +96,9 @@ App RouterはNext.jsにおける新たなルーティングと新機能
 
 ---
 
-# Why App Router?
+# App RouterとServer Components
 
-App RouterはRSC最適なアーキテクチャを実現するために生まれ、RSCは以下の問題を解決したかった
+従来からあったReactの問題を解決したかった
 
 - デフォルトでより良いパフォーマンスの達成
   - ハイドレーション処理・バンドルサイズを減らせる
@@ -111,6 +109,12 @@ App RouterはRSC最適なアーキテクチャを実現するために生まれ�
   - 中間層(tRPC, GraphQL, API Routesなど)の実装や設計が不要に（詳細は後述）
 
 [//]: # (参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation)
+
+---
+layout: section
+---
+
+# Reactの新機能
 
 ---
 
@@ -255,6 +259,12 @@ export default function Page() {
 ```
 
 ---
+layout: section
+---
+
+# App Routerの特徴
+
+---
 
 # 強力なCache
 
@@ -263,6 +273,20 @@ export default function Page() {
 <div class="flex justify-center">
   <img src="/assets/next-cache.png" class="w-100">
 </div>
+
+---
+
+# その他多くの機能
+
+これらの詳細はshort tutorialで手を動かしながら
+
+- Nested Layout
+- Error/Loading UI
+- dynamic route
+- revalidate
+- parallel route
+- intercepting route
+- etc...
 
 ---
 layout: section
