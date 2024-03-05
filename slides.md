@@ -35,14 +35,14 @@ Next.js App Router@2024.01
 
 今日話すこと・話さないこと
 
+- 話さないこと
+  - Next.jsやReactの基礎
+  - experimentalな機能、不安定な機能
 - 話すこと
   - 2023年のNext.js動向振り返り
   - App Router is 何？
   - App Router Short Tutorial
   - App Routerにすべきか
-- 話さないこと
-  - Next.jsやReactの基礎
-  - experimentalな機能群
 
 ---
 layout: section
@@ -89,26 +89,10 @@ Next.jsの新しいアプリケーション構築の仕組み
 - `pages`ではなく`app`ディレクトリ配下に配置する
 - **フレームワークとしてはほとんど別物レベル**
 - Reactの新機能が使える
-  - Client Components/**Server Components**
+  - **React Server Components**
   - Server Actions
 - 強力なCache
 - その他諸々新機能（多くて混乱するので割愛）
-
----
-
-# App RouterとServer Components
-
-従来からあったReactの問題を解決したかった
-
-- デフォルトでより良いパフォーマンスの達成
-  - ハイドレーション処理・バンドルサイズを減らせる
-  - クライアント<->サーバーの通信を減らせる
-    - （サーバー<->サーバー間の通信の方が早いことが多い＋よりセキュア）
-- バックエンドへのフルアクセス
-  - より簡単に、Componentが必要なデータを取得できるようになった
-  - 中間層(tRPC, GraphQL, API Routesなど)の実装や設計が不要に（詳細は後述）
-
-[//]: # (参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation)
 
 ---
 layout: section
@@ -118,15 +102,74 @@ layout: section
 
 ---
 
-# Client Components/Server Components
+# React Server Components/Client Components
 
 Next.jsではなくReactにおける新たな概念
 
+- Server Component: **サーバー側でのみレンダリングされる**Component。略してRSCとも呼ばれる
 - Client Component: 従来からあるクライアント・サーバー**どちらでもレンダリング可能**なComponent
-- Server Component: 新たに**サーバー側でのみレンダリングされる**Component。略してRSCとも呼ばれる
 - 概念自体はNext.js固有のものではないので、今後サポートするフレームワークは増えていくと予想
   - Remix
   - Vike(Viteベース)
+
+---
+
+# React Server Componentsのモチベーション
+
+従来からあったReactの問題を解決したかった
+
+- デフォルトでより良いパフォーマンスの達成
+  - ハイドレーション処理・バンドルサイズを減らせる
+  - クライアント<->サーバーの通信を減らせる
+    - （サーバー<->サーバー間の通信の方が早いことが多い＋よりセキュア）
+- バックエンドへのフルアクセス
+  - より簡単に、Componentが必要なデータを取得できるようになった
+  - 中間層(gSSP, tRPC, GraphQL, API Routesなど)の実装や設計が不要に（詳細は後述）
+
+参考: https://github.com/reactjs/rfcs/blob/main/text/0188-server-components.md#motivation
+
+---
+
+# Server Components
+
+サーバーでのみ実行されるComponent
+
+- App RouterではデフォルトでServer Componentsとなる
+- `useState`などの一部hooksは**利用できない**
+- Component自体をasyncにすることが可能で、fetchを直接扱える
+- Client Components/Server Componentsどちらも含めることができる
+
+```tsx {all|4,5|1,12}
+import { Counter } from "@/components/Counter"; // Client Component
+
+export default async function Page() {
+  // 今までできなかったが、直接awaitできる
+  const product = await fetch('https://dummyjson.com/products/1').then(res => res.json())
+
+  return (
+    <div>
+      <pre>
+        <code>product: {JSON.stringify(product)}</code>
+      </pre>
+      <Counter />
+    </div>
+  )
+}
+```
+
+---
+
+# RSCとSSRとの違い
+
+従来からあるSSR(Server Side Rendering)と混乱しやすいが、Server Componentsは全く異なる概念
+
+- SSR: Client Componentsをサーバーサイドでレンダリングすること
+- Client Components: クライアントサイドでレンダリング＋サーバーサイドでもレンダリングが可能
+  - ハイドレーションすることが前提
+  - クライアントサイドでも実行されるが故、API keyやDB操作を扱うことができない
+- Server Components: サーバーサイドでのみレンダリングされるComponent
+  - ハイドレーションされない
+  - クライアントサイドで実行されないので、API keyやDB操作を扱うことができる
 
 ---
 transition: fade
@@ -189,49 +232,6 @@ export function Accordion({
 
 ---
 
-# Server Components
-
-サーバーでのみ実行されるComponent
-
-- App RouterではデフォルトでServer Componentsとなる
-- `useState`などの一部hooksは**利用できない**
-- Component自体をasyncにすることが可能で、fetchを直接扱える
-- Client Components/Server Componentsどちらも含めることができる
-
-```tsx {all|4,5|1,12}
-import { Counter } from "@/components/Counter"; // Client Component
-
-export default async function Page() {
-  // 今までできなかったが、直接awaitできる
-  const product = await fetch('https://dummyjson.com/products/1').then(res => res.json())
-
-  return (
-    <div>
-      <pre>
-        <code>product: {JSON.stringify(product)}</code>
-      </pre>
-      <Counter />
-    </div>
-  )
-}
-```
-
----
-
-# RSCとSSRとの違い
-
-従来からあるSSR(Server Side Rendering)と混乱しやすいが、Server Componentsは全く異なる概念
-
-- SSR: Client Componentsをサーバーサイドでレンダリングすること
-- Client Components: クライアントサイドでレンダリング＋サーバーサイドでもレンダリングが可能
-  - ハイドレーションすることが前提
-  - クライアントサイドでも実行されるが故、API keyやDB操作を扱うことができない
-- Server Components: サーバーサイドでのみレンダリングされるComponent
-  - ハイドレーションされない
-  - クライアントサイドで実行されないので、API keyやDB操作を扱うことができる
-
----
-
 # Server Action
 
 formの`action`からサーバー側の関数を実行できる
@@ -243,7 +243,7 @@ formの`action`からサーバー側の関数を実行できる
 "use server"
 
 async function create(formData: FormData) {
-  const text = formData.get('text')
+  const text = formData.get('name')
   // ...APIへPOSTしたりDBに保存するなど...
 }
 
@@ -251,7 +251,7 @@ async function create(formData: FormData) {
 export default function Page() {
   return (
     <form action={create}>
-      <input type="text" />
+      <input type="text" name="name" />
       <button type="submit">Create</button>
     </form>
   )
@@ -511,7 +511,7 @@ transition: fade
 `useState`を使うために`"use client"`を追加
 
 ```tsx {all|2-4,7}
-// components/counter.tsx
+// app/components/counter.tsx
 "use client";
 
 import { useState } from "react";
@@ -536,7 +536,7 @@ export function Counter() {
 
 ```tsx {all|2,17}
 // app/page.tsx
-import { Counter } from "../components/counter";
+import { Counter } from "./components/counter";
 import Link from "next/link";
 
 export default async function Page() {
