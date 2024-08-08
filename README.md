@@ -1,10 +1,9 @@
 # Slide of Next.js App Router 2024
 
-[slide](./slides.md)
+## Slide
 
-## netlify
-
-https://slide-of-nextjs-app-router-2024.netlify.app/1
+- [slides.md](./slides.md)
+- [github pages](https://akifumisato.github.io/slide-of-nextjs-app-router-2024/1)
 
 ## 参考
 
